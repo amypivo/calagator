@@ -29,8 +29,8 @@ feature 'Event Creation' do
 
     fill_in_form_fields
 
-    check 'Disable public edits'
-    fill_in 'Admin Email', :with => 'Amy@example.com'
+    check 'Disable Public Editing'
+    fill_in 'Contact Email', :with => 'Amy@example.com'
     click_on 'Create Event'
 
 
