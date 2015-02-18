@@ -46,6 +46,8 @@ class Event < ActiveRecord::Base
 
   before_destroy :verify_lock_status
 
+  before_save :set_key
+
   # Duplicates
   include DuplicateChecking
   duplicate_checking_ignores_attributes    :source_id, :version, :venue_id
@@ -133,6 +135,7 @@ class Event < ActiveRecord::Base
     value = Time.zone.parse(value) if value.kind_of?(String) # this will throw ArgumentError if invalid
     value
   end
+
   private :time_for
 
   def lock_editing!
@@ -142,6 +145,10 @@ class Event < ActiveRecord::Base
   def unlock_editing!
     update_attribute(:locked, false)
   end
+
+  def set_key
+    self.key = SecureRandom.urlsafe_base64 if self.locked
+  end 
 
   #---[ Queries ]---------------------------------------------------------
 

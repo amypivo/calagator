@@ -155,7 +155,8 @@ class EventsController < ApplicationController
 
   def find_and_redirect_if_locked
     @event = Event.find(params[:id])
-    if @event.locked?
+    @key = params[:key] 
+    if @event.locked? && @key != @event.key 
       flash[:failure] = "You are not permitted to modify this event."
       redirect_to root_path
     end

@@ -539,12 +539,35 @@ describe EventsController, :type => :controller do
         expect(response).to render_template :edit
       end
 
-      it "should not allow a user to update a locked event" do
-        @event.lock_editing!
-        put "update", @params
-        expect(response).to be_redirect
-        expect(flash[:failure]).to match /not permitted/i
-      end
+      context "locked events" do
+        it "should not allow a user to update a locked event without a key" do
+          @event.lock_editing!
+          put "update", @params
+          expect(response).to be_redirect
+          expect(flash[:failure]).to match /not permitted/i
+        end
+
+        it "should not display form for editing event without a key" do
+          @event.lock_editing!
+          get "edit", id: 42
+          expect(response).to be_redirect
+          expect(flash[:failure]).to match /not permitted/i
+        end
+
+        it "should display form for editing event with a key" do
+          @event.lock_editing!
+          get "edit", id: @event.id, key: @event.key
+          expect(response).to be_success
+          expect(response).to render_template :edit
+        end
+      
+        it "should allow a user to update a locked event with a key" do
+          @event.lock_editing!    
+          @params[:key] = @event.key
+          put "update", @params
+          expect(response).to redirect_to(@event)
+        end
+      end  
     end
 
     describe "#clone" do
@@ -768,14 +791,23 @@ describe EventsController, :type => :controller do
       expect(response).to redirect_to(events_url)
     end
 
-    it "should not allow a user to destroy a locked event" do
-      event = FactoryGirl.create(:event)
-      event.lock_editing!
+    context "locked events" do
+      it "should not allow a user to destroy a locked event without a key" do
+        event = FactoryGirl.create(:event)
+        event.lock_editing!
 
-      delete 'destroy', :id => event.id
-      expect(response).to be_redirect
-      expect(flash[:failure]).to match /not permitted/i
+        delete 'destroy', :id => event.id
+        expect(response).to be_redirect
+        expect(flash[:failure]).to match /not permitted/i
+      end
+
+      it "should allow a user to destroy a locked event with a key" do
+        event = FactoryGirl.create(:event, locked: true)
+
+        delete 'destroy', :id => event.id, :key => event.key
+        expect(response).to redirect_to(events_url)
+      end
+
     end
-
   end
 end

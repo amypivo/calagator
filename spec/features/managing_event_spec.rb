@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 feature 'Event Editing' do
+  let!(:venue) { create(:venue) }
+  let!(:locked_event) { create(:event,locked: true, venue: venue) }
+
   background do
     Timecop.travel('2014-10-09')
     create :event, title: 'Ruby Future', start_time: today
@@ -42,7 +45,29 @@ feature 'Event Editing' do
       expect(page).to have_content 'Ruby ABCs'
     end
   end
+
+  scenario 'Edit a locked event with key' do
+    visit "/events/#{locked_event.id}/edit/?key=#{locked_event.key}"
+
+    fill_in 'Website', with: 'www.example.com'
+    fill_in 'Description', with: 'An event for women'
+    fill_in 'Tags', with: 'ruby'
+    click_on 'Update Event'
+
+    expect(page).to have_content 'Event was successfully saved'
+    expect(page).to have_content 'An event for women'
+    expect(page).to have_content 'Website http://www.example.com'
+    expect(page).to have_content 'Description An event for women'
+    expect(page).to have_content 'ruby'
+  end
+
+  scenario 'Edit a locked even without key' do
+    visit "/events/#{locked_event.id}/edit/"
+
+    expect(page).to have_content('You are not permitted to modify this event')
+  end
 end
+
 
 feature 'Event Cloning' do
   background do
@@ -88,6 +113,9 @@ feature 'Event Cloning' do
 end
 
 feature 'Event Deletion' do
+  let!(:venue) { create(:venue) }
+  let!(:locked_event) { create(:event, title: 'Locked Event Title', locked: true, venue: venue) }
+
   background do
     create :event, title: 'Ruby and You', start_time: today + 1.day
   end
@@ -107,5 +135,13 @@ feature 'Event Deletion' do
     within '#tomorrow' do
       expect(page).to have_content '- No events -'
     end
+  end
+
+  scenario 'A user deletes a locked event' do
+    pending
+    visit "/events/#{locked_event.id}/edit/?key=#{locked_event.key}"
+    click_on 'delete'
+
+    expect(page).to have_content '"Locked Event Title" has been deleted'
   end
 end

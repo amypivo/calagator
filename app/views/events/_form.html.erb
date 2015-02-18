@@ -80,7 +80,11 @@
 </div>
 <% end -%>
 
+
 <%= semantic_form_for(event, :html => {:id => 'event_form', :class => 'standard_form', :novalidate => 'novalidate'}) do |f| %>
+  <% unless event.new_record? %>
+    <%= hidden_field_tag 'key', @key %>
+  <% end %>
   <%= f.inputs :name => "#{'Editing: ' unless event.new_record?} <em>#{event.title}</em>".html_safe do %>
     <%= f.input :title, :label => "Event Name" %>
     <% focus_on '#event_title' %>
@@ -93,6 +97,7 @@
         Type the name of a venue to search. If it doesn't exist, we'll create it for you.
       </p>
     <li>
+
     <li id="event_times" class='input'>
       <%= f.label :when, "When", :class => 'label' %>
       <%

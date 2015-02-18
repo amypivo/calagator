@@ -21,7 +21,7 @@ feature 'Event Creation' do
     expect(page).to have_content 'Tags beginners, ruby'
   end
 
-  scenario 'User adds an event that is protected from public edits' do
+  scenario 'User adds an event that is locked from public edits' do
     create :venue, title: 'Empire State Building'
 
     visit '/'

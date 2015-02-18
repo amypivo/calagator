@@ -17,10 +17,21 @@ describe Event, :type => :model do
       expect(event).not_to be_valid
     end
 
+    it "creates a key for locked events" do
+      event = Event.create(:title => "Event title", :start_time => Time.zone.parse('2008.04.12'), :url => 'google.com', locked: true)
+      expect(event.key).to_not be_nil
+    end
+
+    it "should not create a key for events that are not locked" do
+      event = Event.create(:title => "Event title", :start_time => Time.zone.parse('2008.04.12'), :url => 'google.com', locked: false)
+      expect(event.key).to be_nil
+    end
+
     it "can be locked" do
       event = Event.create(:title => "Event title", :start_time => Time.zone.parse('2008.04.12'))
       event.lock_editing!
       expect(event.locked).to eq(true)
+      expect(event.key).to_not be_nil
     end
 
     it "can be unlocked" do
