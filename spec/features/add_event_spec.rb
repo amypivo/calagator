@@ -7,22 +7,11 @@ feature 'Event Creation' do
     visit '/'
     click_on 'Add an event'
 
-    fill_in 'Event Name', with: 'Ruby Newbies'
-    find_field('Venue').native.send_keys 'Empire State'
-    click_on 'Empire State Building'
-
-    fill_in 'start_date', with: '2014-08-05'
-    fill_in 'start_time', with: '06:00 PM'
-    fill_in 'end_time', with: '11:00 PM'
-    fill_in 'end_date', with: '2014-08-06'
-    fill_in 'Website', with: 'www.rubynewbies.com'
-    fill_in 'Description', with: 'An event for beginners'
-    fill_in 'Venue details', with: 'On the third floor'
-    fill_in 'Tags', with: 'beginners,ruby'
+    fill_in_form_fields
 
     click_on 'Create Event'
 
-    expect(page).to have_content 'Event was successfully saved'
+    expect(page).to have_content 'Event was successfully saved.'
     expect(page).to have_content 'Ruby Newbies'
     expect(page).to have_content 'Empire State Building'
     expect(page).to have_content 'Tuesday, August 5, 2014 at 6pm through Wednesday, August 6, 2014 at 11pm'
@@ -30,6 +19,24 @@ feature 'Event Creation' do
     expect(page).to have_content 'Description An event for beginners'
     expect(page).to have_content 'On the third floor'
     expect(page).to have_content 'Tags beginners, ruby'
+  end
+
+  scenario 'User adds an event that is protected from public edits' do
+    create :venue, title: 'Empire State Building'
+
+    visit '/'
+    click_on 'Add an event'
+
+    fill_in_form_fields
+
+    check 'Disable public edits'
+    fill_in 'Admin Email', :with => 'Amy@example.com'
+    click_on 'Create Event'
+
+
+    expect(page).to have_content 'Event was successfully saved'
+    expect(page).to_not have_content 'Edit'
+
   end
 
   scenario 'User adds an event at a new venue' do
@@ -95,5 +102,20 @@ feature 'Event Creation' do
 
     expect(page).to have_text('Urban Airship')
     expect(page).to have_no_text('New Relic')
+  end
+
+  def fill_in_form_fields
+    fill_in 'Event Name', with: 'Ruby Newbies'
+    find_field('Venue').native.send_keys 'Empire State'
+    click_on 'Empire State Building'
+
+    fill_in 'start_date', with: '2014-08-05'
+    fill_in 'start_time', with: '06:00 PM'
+    fill_in 'end_time', with: '11:00 PM'
+    fill_in 'end_date', with: '2014-08-06'
+    fill_in 'Website', with: 'www.rubynewbies.com'
+    fill_in 'Description', with: 'An event for beginners'
+    fill_in 'Venue details', with: 'On the third floor'
+    fill_in 'Tags', with: 'beginners,ruby'
   end
 end

@@ -17,6 +17,7 @@
 #  version         :integer
 #  rrule           :string(255)
 #  venue_details   :text
+#  locked          :bool 
 #
 
 # == Event
